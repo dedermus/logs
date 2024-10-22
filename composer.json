@@ -1,0 +1,36 @@
+{
+    "name": "svr/core",
+    "description": "SVR DIRECTORIES - A simple directory  package for SVR",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/dedermus/svr_directories",
+    "authors": [
+        {
+            "name": "dedermus",
+            "email": "dedermus@yandex.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Svr\\Core\\": "src/",
+            "Svr\\Core\\Seeders\\": "database/seeders/"
+        },
+        "files": ["src/bootstrap.php"]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Svr\\Core\\DirectoriesServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "dedermus/open-admin-core": "^v2.0",
+        "svr/core": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0"
+    }
+}
+

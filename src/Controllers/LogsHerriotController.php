@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Admin\Controllers\Logs;
+namespace Svr\Logs\Controllers;
 
-use App\Models\Logs\LogsHerriot;
+use Svr\Logs\Models\LogsHerriot;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 use OpenAdminCore\Admin\Facades\Admin;

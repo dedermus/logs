@@ -1,22 +1,17 @@
 <?php
 
-namespace App\Admin\Controllers\Logs;
+namespace Svr\Logs\Controllers;
 
-use App\Models\Logs\LogsHerriot;
-use App\Models\Logs\LogsUsers;
-use App\Models\System\User;
-use App\Models\system_modules;
-use App\Models\system_modules_actions;
-use App\Models\system_users_tokens;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 use OpenAdminCore\Admin\Facades\Admin;
 use OpenAdminCore\Admin\Controllers\AdminController;
-use OpenAdminCore\Admin\Form;
 use OpenAdminCore\Admin\Grid;
 use OpenAdminCore\Admin\Show;
 use OpenAdminCore\Admin\Layout\Content;
-use PhpParser\Token;
+use Svr\Core\Models\SystemModules;
+use Svr\Core\Models\SystemModulesActions;
+use Svr\Logs\Models\LogsUsers;
 
 class LogsUsersController extends AdminController
 {
@@ -82,8 +77,8 @@ class LogsUsersController extends AdminController
             $filter->equal('log_id', __($this->trans.'log_id'));
             $filter->equal('user_id', __($this->trans.'user_id'));
             $filter->equal('token_id', __($this->trans.'token_id'));
-            $filter->in('action_module', __($this->trans.'action_module'))->select(system_modules::all()->pluck('module_slug', 'module_slug'));
-            $filter->in('action_method', __($this->trans.'action_method'))->select(system_modules_actions::all()->pluck('right_action', 'right_action'));
+            $filter->in('action_module', __($this->trans.'action_module'))->select(SystemModules::all()->pluck('module_slug', 'module_slug'));
+            $filter->in('action_method', __($this->trans.'action_method'))->select(SystemModulesActions::all()->pluck('right_action', 'right_action'));
 
         });
 

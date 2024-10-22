@@ -1,9 +1,9 @@
 {
-    "name": "svr/core",
-    "description": "SVR DIRECTORIES - A simple directory  package for SVR",
+    "name": "svr/logs",
+    "description": "SVR LOGS - A simple logs  package for SVR",
     "type": "library",
     "license": "MIT",
-    "homepage": "https://github.com/dedermus/svr_directories",
+    "homepage": "https://github.com/dedermus/svr_logs",
     "authors": [
         {
             "name": "dedermus",
@@ -12,15 +12,13 @@
     ],
     "autoload": {
         "psr-4": {
-            "Svr\\Core\\": "src/",
-            "Svr\\Core\\Seeders\\": "database/seeders/"
-        },
-        "files": ["src/bootstrap.php"]
+            "Svr\\Logs\\": "src/"
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Svr\\Core\\DirectoriesServiceProvider"
+                "Svr\\Logs\\LogsServiceProvider"
             ]
         }
     },

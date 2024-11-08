@@ -53,7 +53,7 @@ class LogsManager extends Extension
             'uri'       => 'logs',
         ];
         // Если нет пункта в меню, добавляем его
-        if (!Menu::where('uri', 'logs')->exists()) {
+        if (!Menu::where('uri', 'logs_svr')->exists()) {
             $root = Menu::create($root);
 
             $menus = [

@@ -23,8 +23,8 @@ return new class extends Migration
                 $table->string('action_module', 32)->nullable(false)->comment('Название модуля в таблице SYSTEM.SYSTEM_MODULES');
                 $table->string('action_method', 64)->nullable(false)->comment('Название метода в таблице SYSTEM.SYSTEM_MODULES_ACTIONS');
                 $table->text('action_data')->nullable(true)->default(null)->comment('Данные запроса');
-                $table->timestamp('action_created_at')->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Дата создания записи');
-                $table->timestamp('update_at')->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Дата удаления записи');
+                // Это поля "created_at" и "updated_at".
+                $table->timestamps();
             });
         }
     }

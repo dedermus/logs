@@ -11,37 +11,71 @@ use OpenAdminCore\Admin\Show;
 use OpenAdminCore\Admin\Layout\Content;
 use Svr\Core\Models\SystemModules;
 use Svr\Core\Models\SystemModulesActions;
+use Svr\Core\Models\SystemUsers;
+use Svr\Core\Models\SystemUsersToken;
+use Svr\Data\Models\DataApplicationsAnimals;
+use Svr\Logs\Models\LogsHerriot;
 use Svr\Logs\Models\LogsUsers;
 
 class LogsUsersController extends AdminController
 {
-    protected $model;
-    protected $model_obj;
-    protected $title;
-    protected $trans;
-    protected $all_columns_obj;
+    /**
+     * Экземпляр класса модели
+     */
+    private LogsUsers $logsHrriot;
 
+    /**
+     * Конструктор
+     */
     public function __construct()
     {
-        $this->model = new LogsUsers();
-        $this->model_obj = new $this->model;
-        $this->trans = 'log.';
-        $this->title = trans($this->trans.'logs_users_actions');
-        $this->all_columns_obj = Schema::getColumns($this->model->getTable());
+        $this->logsUsers = new LogsUsers();
     }
 
     /**
-     * Index interface.
+     * Основной интерфейс.
+     *
+     * @param Content $content
      *
      * @return Content
      */
-    public function index(Content $content)
+    public function index(Content $content): Content
     {
-        return Admin::content(function (Content $content) {
-            $content->header($this->title);
-            $content->description(trans('admin.description'));
-            $content->body($this->grid());
-        });
+        return $content
+            ->header(trans('svr-logs-lang::logs.logs_users_action.title'))
+            ->description(trans('svr-logs-lang::logs.logs_users_action.description'))
+            ->body($this->grid());
+    }
+
+    /**
+     * Интерфейс создания новой записи.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function create(Content $content): Content
+    {
+        return $content
+            ->title(trans('svr-logs-lang::logs.logs_users_action.title'))
+            ->description(trans('svr-logs-lang::logs.logs_users_action.create'))
+            ->body($this->form());
+    }
+
+    /**
+     * Edit interface.
+     *
+     * @param string  $id
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function edit($id, Content $content)
+    {
+        return $content
+            ->title(trans('svr-logs-lang::logs.logs_users_action.title'))
+            ->description(trans('svr-logs-lang::logs.logs_users_action.edit'))
+            ->row($this->form()->edit($id));
     }
 
     /**
@@ -55,10 +89,17 @@ class LogsUsersController extends AdminController
     public function show($id, Content $content)
     {
         return $content
-            ->title($this->title)
-            ->description(trans('admin.show'))
+            ->title(trans('svr-logs-lang::logs.logs_users_action.title'))
+            ->description(trans('svr-logs-lang::logs.logs_users_action.description'))
             ->body($this->detail($id));
     }
+
+    /**
+     * Title for current resource.
+     *
+     * @var string
+     */
+    protected $title = 'Logs Herriot';
 
     /**
      * Make a grid builder.
@@ -67,45 +108,68 @@ class LogsUsersController extends AdminController
      */
     protected function grid(): Grid
     {
-        $grid = new Grid($this->model_obj);
+        $logUsers = $this->logsUsers;
+        $grid = new Grid(new LogsUsers());
+        $grid->column('log_id', __('svr-logs-lang::logs.logs_users_action.log_id'))
+            ->help(__('log_id'))
+            ->sortable();
+        $grid->column('user_id', __('svr-logs-lang::logs.logs_users_action.user_id'))
+            ->link(function ($value){
+                return '/admin/core/users/'.$value['user_id'];
+            }, '_blank')
+            ->help(__('user_id'))
+            ->sortable();
+        $grid->column('token_id', __('svr-logs-lang::logs.logs_users_action.token_id'))
+            ->link(function ($value){
+                return '/admin/core/users_tokens/'.$value['token_id'];
+            }, '_blank')
+            ->help(__('token_id'))
+            ->sortable();
+        $grid->column('action_module', __('svr-logs-lang::logs.logs_users_action.action_module'))
+//            ->link(function ($value){
+//                return '/admin/core/modules/'.$value['action_module'];
+//            }, '_blank')
+            ->help(__('action_module'))
+            ->sortable();
+        $grid->column(
+            'action_method', __('svr-logs-lang::logs.logs_users_action.action_method')
+        )
+//            ->link(function ($value){
+//                return '/admin/core/rights/'.$value['action_method'];
+//            }, '_blank')
+            ->help(__('action_method'))
+            ->sortable();
 
-        $grid->fixColumns(-1);
+
+        $grid->column('created_at', trans('svr-logs-lang::logs.logs_users_action.created_at'))
+            ->help(__('created_at'))
+            ->display(function ($value) use ($logUsers) {
+                return Carbon::parse($value)->timezone(config('app.timezone'))->format(
+                    $logUsers->getDateFormat()
+                );
+            })->sortable();
+        $grid->column('updated_at', trans('svr-logs-lang::logs.logs_users_action.updated_at'))
+            ->help(__('updated_at'))
+            ->display(function ($value) use ($logUsers) {
+                return Carbon::parse($value)->timezone(config('app.timezone'))->format(
+                    $logUsers->getDateFormat()
+                );
+            })->sortable();
 
         $grid->filter(function ($filter)
         {
             $filter->disableIdFilter();
-            $filter->equal('log_id', __($this->trans.'log_id'));
-            $filter->equal('user_id', __($this->trans.'user_id'));
-            $filter->equal('token_id', __($this->trans.'token_id'));
-            $filter->in('action_module', __($this->trans.'action_module'))->select(SystemModules::all()->pluck('module_slug', 'module_slug'));
-            $filter->in('action_method', __($this->trans.'action_method'))->select(SystemModulesActions::all()->pluck('right_action', 'right_action'));
-
+            $filter->equal('log_id', __('svr-logs-lang::logs.logs_users_action.log_id'));
+            $filter->equal('user_id', __('svr-logs-lang::logs.logs_users_action.user_id'));
+            $filter->equal('token_id', __('svr-logs-lang::logs.logs_users_action.token_id'));
+            $filter->in('action_module', __('svr-logs-lang::logs.logs_users_action.action_module'))->select(SystemModules::all()->pluck('module_slug', 'module_slug'));
+            $filter->in('action_method', __('svr-logs-lang::logs.logs_users_action.action_method'))->select(SystemModulesActions::all()->pluck('right_action', 'right_action'));
         });
 
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableEdit();
         });
-
-        foreach ($this->all_columns_obj as $key => $value) {
-            $value_name = $value['name'];
-            $value_label = $value_name;
-            $trans = trans($this->trans . $value_name);
-
-            match ($value_name) {
-                // Индивидуальные настройки для отображения колонок:company_created_at, update_at, company_id
-                'log_id' => $grid->column($value_name, 'ID')->sortable(),
-                $this->model_obj->getCreatedAtColumn(), $this->model_obj->getUpdatedAtColumn() => $grid
-                    ->column($value_name, $value_label)
-                    ->display(function ($value) {return Carbon::parse($value);})
-                    ->xx_datetime()
-                    ->help($trans),
-
-                // Отображение остальных колонок
-                default => $grid->column($value_name, $value_label)->help($trans),
-            };
-        }
-
         return $grid;
     }
 
@@ -113,32 +177,32 @@ class LogsUsersController extends AdminController
      * Make a show builder.
      *
      * @param mixed $id
+     *
      * @return Show
      */
     protected function detail($id)
     {
-        $show = new Show(LogsUsers::findOrFail($id));
+        $show = new Show($this->logsUsers->findOrFail($id));
+        $data = $this->logsUsers->find($id)->toArray();
+        $show->field('log_id', __('svr-logs-lang::logs.logs_users_action.log_id'));
 
-        $show->panel()->tools(function ($tools) {
-            $tools->disableEdit();
-        });
+        $show->field('user_id', trans('svr-logs-lang::logs.logs_users_action.user_id'))
+            ->link('/admin/core/users/'.$data['user_id'], '_blank');
+        $show->field('token_id', __('svr-logs-lang::logs.logs_users_action.token_id'))
+            ->link('/admin/core/users_tokens/'.$data['token_id'], '_blank');
+        $show->field(
+            'action_module', __('svr-logs-lang::logs.logs_users_action.action_module')
+        );
+        $show->field(
+            'action_method', __('svr-logs-lang::logs.logs_users_action.action_method')
+        );
+        $show->field(
+            'action_data',
+            __('svr-logs-lang::logs.logs_users_action.action_data')
+        );
+        $show->field('created_at', trans('svr-logs-lang::logs.logs_users_action.created_at'));
+        $show->field('updated_at', trans('svr-logs-lang::logs.logs_users_action.updated_at'));
 
-        foreach ($this->all_columns_obj as $key => $value) {
-            $value_name = $value['name'];
-            $value_label = $value_name;
-            $trans = trans(strtolower($this->trans . $value_name));
-            match ($value_name) {
-                // Индивидуальные настройки для отображения полей:created_at, update_at
-                $this->model_obj->getUpdatedAtColumn(), $this->model_obj->getCreatedAtColumn() => $show
-                    ->field($value_name, $value_label)
-                    ->xx_datetime()
-                    ->xx_help(msg:$trans),
-                // Отображение остальных полей
-                default => $show
-                    ->field($value_name, $value_label)
-                    ->xx_help(msg:$trans),
-            };
-        }
         return $show;
     }
 }

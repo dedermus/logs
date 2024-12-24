@@ -5,6 +5,7 @@ namespace Svr\Logs\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Svr\Core\Traits\GetTableName;
 use Svr\Data\Models\DataApplicationsAnimals;
 
 /**
@@ -14,6 +15,7 @@ use Svr\Data\Models\DataApplicationsAnimals;
  */
 class LogsHerriot extends Model
 {
+    use GetTableName;
     /**
      * Точное название таблицы с учетом схемы
      * @var string
